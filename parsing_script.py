@@ -12,7 +12,7 @@ wows_location = "C:\Program Files (x86)\Steam\steamapps\common\World of Warships
 
 #wows_version = "6359964"
 
-wows_version = max(os.listdir(wows_location + "\\bin"))
+wows_version = max(os.listdir(wows_location + "\\bin"),key=int)
 
 # wows_version = "9531281"
 
@@ -22,11 +22,16 @@ print("wows location: " + wows_location + "\\bin\\" + wows_version + "\n")
 
 output = polib.MOFile()
 
+en_location = (wows_location + "\\bin\\" + wows_version + "\\res\\texts\\en\\LC_MESSAGES\\global.mo")
+ja_location = (wows_location + "\\bin\\" + wows_version + "\\res\\texts\\ja\\LC_MESSAGES\\global.mo")
+zh_location = (wows_location + "\\bin\\" + wows_version + "\\res\\texts\\zh_tw\\LC_MESSAGES\\global.mo")
+ru_location = (wows_location + "\\bin\\" + wows_version + "\\res\\texts\\ru\\LC_MESSAGES\\global.mo")
 
-en = polib.mofile((wows_location + "\\bin\\" + wows_version + "\\res\\texts\\en\\LC_MESSAGES\\global.mo"), encoding='utf-8')
-ja = polib.mofile((wows_location + "\\bin\\" + wows_version + "\\res\\texts\\ja\\LC_MESSAGES\\global.mo"), encoding='utf-8')
-zh = polib.mofile((wows_location + "\\bin\\" + wows_version + "\\res\\texts\\zh_tw\\LC_MESSAGES\\global.mo"), encoding='utf-8')
-ru = polib.mofile((wows_location + "\\bin\\" + wows_version + "\\res\\texts\\ru\\LC_MESSAGES\\global.mo"), encoding='utf-8')
+
+en = polib.mofile(en_location, encoding='utf-8')
+ja = polib.mofile(ja_location, encoding='utf-8')
+zh = polib.mofile(zh_location, encoding='utf-8')
+ru = polib.mofile(ru_location, encoding='utf-8')
 
 output.metadata = en.metadata
 
