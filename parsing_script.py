@@ -7,7 +7,7 @@ import re
 import shutil
 
 # wows_location = "C:\\Games\\World_of_Warships"
-wows_location = "C:\Program Files (x86)\Steam\steamapps\common\World of Warships"
+wows_location = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\World of Warships"
 
 
 #wows_version = "6359964"
@@ -65,50 +65,48 @@ for entry in output:
 
 
 
-        entry.msgstr = re.sub( "Tang Sanzang", "唐三藏", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Zhu Bajie", "豬八戒", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Sha Wujing", "沙悟淨", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Sun Wukong", "孫悟空", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Tang Sanzang", repl = "唐三藏", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Zhu Bajie", repl = "豬八戒", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Sha Wujing", repl = "沙悟淨", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Sun Wukong", repl = "孫悟空", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
 
-        entry.msgstr = re.sub( "Bajie", "八戒", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Wujing", "悟淨", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Wukong", "悟空", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Sanzang", "三藏", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Bajie", repl = "八戒", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Wujing", repl = "悟淨", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Wukong", repl = "悟空", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Sanzang", repl = "三藏", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
-        entry.msgstr = re.sub( "Harbin", "哈爾濱", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Sejong", "世宗", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Huanghe", "黃河", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Dalian", "大連", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Fushun", "撫順", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Chung Mu", "忠武", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Anshan", "鞍山", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Sun Yat-Sen", "孫逸仙", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Harbin", repl = "哈爾濱", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Sejong", repl = "世宗", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Huanghe", repl = "黃河", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Dalian", repl = "大連", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Fushun", repl = "撫順", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Chung Mu", repl = "忠武", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Anshan", repl = "鞍山", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Sun Yat-Sen", repl = "孫逸仙", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
-        entry.msgstr = re.sub( "Yamato", "大和", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Kongō", "金剛", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Kirishima", "霧島", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Hiei", "比叡", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Haruna", "榛名", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Myōkō", "妙高", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Ashigara", "足柄", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Takao", "高雄", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Haguro", "羽黒", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Maya", "摩耶", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Nachi", "那智", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Yamato", repl = "大和", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Kongō", repl = "金剛", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Kirishima", repl = "霧島", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Hiei", repl = "比叡", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Haruna", repl = "榛名", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Myōkō", repl = "妙高", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Ashigara", repl = "足柄", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Maya", repl = "摩耶", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Nachi", repl = "那智", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
-        entry.msgstr = re.sub( "Xin Zhong Guo", "「新中國」", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Xin Zhong Guo", repl = "「新中國」", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
-        entry.msgstr = re.sub( "Yamamoto Isoroku", "山本五十六", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Yamamoto Isoroku", repl = "山本五十六", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
-        entry.msgstr = re.sub( "Kunming", "昆明", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Kunming", repl = "昆明", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
-        entry.msgstr = re.sub( "Mengchong", "蒙衝", entry.msgstr, re.IGNORECASE)   
-        entry.msgstr = re.sub( "Incheon", "仁川", entry.msgstr, re.IGNORECASE)  
-        entry.msgstr = re.sub( "Louchuan", "樓船", entry.msgstr, re.IGNORECASE) 
-        entry.msgstr = re.sub( "Tianjin", "天津", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Taihang", "太行", entry.msgstr, re.IGNORECASE)
-        entry.msgstr = re.sub( "Lüshun", "旅順", entry.msgstr, re.IGNORECASE)
+        entry.msgstr = re.sub( pattern = "Mengchong", repl = "蒙衝", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Incheon", repl = "仁川", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Louchuan", repl = "樓船", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Tianjin", repl = "天津", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Taihang", repl = "太行", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Lüshun", repl = "旅順", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
 
 
@@ -127,9 +125,9 @@ output.save(wows_location + "\\bin\\" + wows_version + "\\res_mods\\texts\\en\\L
 output.save(wows_location + "\\bin\\" + wows_version + "\\res_mods\\texts\\ja\\LC_MESSAGES\\global.mo")
 
 
-print("copying fontconfig.xml\n")
+# print("copying fontconfig.xml\n")
 
 # directory = os.path.realpath()
 
-shutil.copyfile("D:\\WOWS fuckery\\fontconfig.xml", wows_location + "\\bin\\" + wows_version + "\\res_mods\\fontconfig.xml")
+# shutil.copyfile("D:\\WOWS fuckery\\fontconfig.xml", wows_location + "\\bin\\" + wows_version + "\\res_mods\\fontconfig.xml")
 # shutil.copyfile(directory + "\\fontconfig.xml", wows_location + "\\bin\\" + wows_version + "\\res_mods\\fontconfig.xml")
