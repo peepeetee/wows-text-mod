@@ -108,6 +108,15 @@ for entry in output:
         entry.msgstr = re.sub( pattern = "Taihang", repl = "太行", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
         entry.msgstr = re.sub( pattern = "Lüshun", repl = "旅順", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
 
+        entry.msgstr = re.sub( pattern = "Taejong", repl = "太宗", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Lanzhou", repl = "蘭州", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+
+
+        entry.msgstr = re.sub( pattern = "Yimeng", repl = "沂蒙", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Datong", repl = "大同", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Baotou", repl = "包頭", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+        entry.msgstr = re.sub( pattern = "Nanning", repl = "南寧", string = entry.msgstr, flags = re.IGNORECASE, count = 0)
+
 
 
 
