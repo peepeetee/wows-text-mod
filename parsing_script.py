@@ -5,16 +5,25 @@ Japan, Russia and Pan-Asia come from the native-language translation, then
 rewrites romanised Chinese/Japanese/Korean names into Chinese characters.
 
 The game's default font for the EU/NA realm (Warhelios) has no CJK glyphs, so
-the script also writes res_mods/gui/fontconfig_gameface.xml and
-res_mods/gui/fontconfig_scaleform.xml, which point every realm at a font that
-covers Latin, Cyrillic and CJK.
+the script also builds a CJK font with every glyph of the stock Warhelios
+(Polish letters, the supership star, the game's private-use icons) copied in,
+and writes res_mods/gui/fontconfig_gameface.xml and
+res_mods/gui/fontconfig_scaleform.xml to use it for every realm.
 """
 
 import argparse
+import functools
+import io
 import os
 import re
+import struct
+import zlib
 
 import polib
+from fontTools.pens.recordingPen import DecomposingRecordingPen
+from fontTools.pens.transformPen import TransformPen
+from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.ttLib import TTFont
 
 DEFAULT_WOWS_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\World of Warships"
 
@@ -80,21 +89,25 @@ NAME_REPLACEMENTS = (
 
 REALMS = ("ASIA", "CN", "EU", "KO", "RU", "TH")
 
-# CJK-capable fonts: (regular full name, regular path, bold full name, bold path).
+# CJK fonts the patched font is built on: (regular path, bold path).
 FONTS = {
     # Ships with the game; the stock font for the ASIA realm.
     "source-han-sans": (
-        "Source Han Sans JP Medium WH", "gui/fonts/Source_Han_Sans_JP_Medium_WH.ttf",
-        "Source Han Sans JP Bold WH", "gui/fonts/Source_Han_Sans_JP_Bold_WH.ttf",
+        "gui/fonts/Source_Han_Sans_JP_Medium_WH.ttf",
+        "gui/fonts/Source_Han_Sans_JP_Bold_WH.ttf",
     ),
     # Aslain's "East Asia Font Pack": Warhelios look with CJK glyphs added.
     # Not part of the game, so it has to be installed in res_mods/gui/fonts.
     "warhelios-east-asia": (
-        "Warhelios-east-asia-regular", "gui/fonts/Warhelios-east-asia-regular.ttf",
-        "Warhelios-east-asia-bold", "gui/fonts/Warhelios-east-asia-bold.ttf",
+        "gui/fonts/Warhelios-east-asia-regular.ttf",
+        "gui/fonts/Warhelios-east-asia-bold.ttf",
     ),
 }
 BUNDLED_FONT = "source-han-sans"
+
+# Stock EU font; any glyph the CJK font lacks is copied from here.
+STOCK_FONTS = ("gui/fonts/Warhelios_Regular.ttf", "gui/fonts/Warhelios_Bold.ttf")
+PATCHED_FONTS = ("gui/fonts/textmod-regular.ttf", "gui/fonts/textmod-bold.ttf")
 
 # Same layout as the game's own gui/fontconfig_gameface.xml.
 GAMEFACE_TEMPLATE = """\
@@ -200,10 +213,58 @@ def fontconfig_scaleform(font):
     return f'<?xml version="1.0" encoding="utf-8"?>\n\n<fontconfig>\n{realms}\n</fontconfig>\n'
 
 
+@functools.cache
+def load_package_index(wows_dir, build_dir, package):
+    """Map file paths to (package file, offset, size, unpacked size) from bin/<build>/idx."""
+    with open(os.path.join(build_dir, "idx", package + ".idx"), "rb") as f:
+        idx = f.read()
+    nodes_count, files_count = struct.unpack_from("<II", idx, 16)
+    nodes_offset, files_offset, volumes_offset = (
+        offset + 16 for offset in struct.unpack_from("<QQQ", idx, 32))
+
+    def string_at(record, length, pointer):
+        return idx[record + pointer:record + pointer + length].rstrip(b"\0").decode()
+
+    # Nodes form a tree of path components: (name length, name pointer, id, parent id).
+    nodes = {}
+    for i in range(nodes_count):
+        record = nodes_offset + 32 * i
+        name_length, name_pointer, node_id, parent_id = struct.unpack_from("<QQQQ", idx, record)
+        nodes[node_id] = (string_at(record, name_length, name_pointer), parent_id)
+
+    def node_path(node_id):
+        parts = []
+        while node_id in nodes:
+            name, node_id = nodes[node_id]
+            parts.append(name)
+        return "/".join(reversed(parts))
+
+    name_length, name_pointer = struct.unpack_from("<QQ", idx, volumes_offset)
+    volume_path = os.path.join(wows_dir, "res_packages",
+                               string_at(volumes_offset, name_length, name_pointer))
+
+    files = {}
+    for i in range(files_count):
+        node_id, _, offset, _, size, _, unpacked_size, _ = struct.unpack_from(
+            "<QQQQIIII", idx, files_offset + 48 * i)
+        files[node_path(node_id)] = (volume_path, offset, size, unpacked_size)
+    return files
+
+
+def read_packaged_file(wows_dir, build_dir, path, package="gui"):
+    """Read a file from the game's res_packages."""
+    files = load_package_index(wows_dir, build_dir, package)
+    if path not in files:
+        raise SystemExit(f"{path} not found in {package}.idx")
+    volume_path, offset, size, unpacked_size = files[path]
+    with open(volume_path, "rb") as f:
+        f.seek(offset)
+        data = f.read(size)
+    return data if size == unpacked_size else zlib.decompress(data, -zlib.MAX_WBITS)
+
+
 def font_installed(res_mods_dir, font_key):
-    _, regular_path, _, bold_path = FONTS[font_key]
-    return all(os.path.exists(os.path.join(res_mods_dir, path))
-               for path in (regular_path, bold_path))
+    return all(os.path.exists(os.path.join(res_mods_dir, path)) for path in FONTS[font_key])
 
 
 def pick_font(res_mods_dir, requested):
@@ -216,10 +277,58 @@ def pick_font(res_mods_dir, requested):
     return BUNDLED_FONT
 
 
-def write_fontconfig(res_mods_dir, font_key):
-    font = FONTS[font_key]
+def add_missing_glyphs(font, donor):
+    """Copy every character of donor that font has no glyph for, scaled to font's em size."""
+    font_cmap = font.getBestCmap()
+    missing = {codepoint: name for codepoint, name in donor.getBestCmap().items()
+               if codepoint not in font_cmap}
+    scale = font["head"].unitsPerEm / donor["head"].unitsPerEm
+    donor_glyphs = donor.getGlyphSet()
+    glyf, hmtx = font["glyf"], font["hmtx"]
+    glyph_order = font.getGlyphOrder()
+
+    copied = {}
+    for codepoint, donor_name in sorted(missing.items()):
+        if donor_name not in copied:
+            recording = DecomposingRecordingPen(donor_glyphs)
+            donor_glyphs[donor_name].draw(recording)
+            pen = TTGlyphPen(None)
+            recording.replay(TransformPen(pen, (scale, 0, 0, scale, 0, 0)))
+            glyph = pen.glyph()
+            glyph.recalcBounds(glyf)
+
+            name = "textmod." + donor_name
+            glyph_order.append(name)
+            glyf[name] = glyph
+            hmtx[name] = (round(donor_glyphs[donor_name].width * scale), getattr(glyph, "xMin", 0))
+            copied[donor_name] = name
+        for table in font["cmap"].tables:
+            if table.isUnicode() and (codepoint <= 0xFFFF or table.format in (12, 13)):
+                table.cmap[codepoint] = copied[donor_name]
+    font.setGlyphOrder(glyph_order)
+    return len(missing)
+
+
+def build_fonts(wows_dir, build_dir, res_mods_dir, font_key):
+    """Write the patched regular and bold fonts; returns (regular name, path, bold name, path)."""
+    result = []
+    for base_path, stock_path, patched_path in zip(FONTS[font_key], STOCK_FONTS, PATCHED_FONTS):
+        installed = os.path.join(res_mods_dir, base_path)
+        if os.path.exists(installed):
+            base = TTFont(installed)
+        else:
+            base = TTFont(io.BytesIO(read_packaged_file(wows_dir, build_dir, base_path)))
+        stock = TTFont(io.BytesIO(read_packaged_file(wows_dir, build_dir, stock_path)))
+        added = add_missing_glyphs(base, stock)
+        base.save(os.path.join(res_mods_dir, patched_path))
+        print(f"wrote {patched_path}: {os.path.basename(base_path)} + {added} glyphs from "
+              f"{os.path.basename(stock_path)}")
+        result += [base["name"].getDebugName(4), patched_path]
+    return tuple(result)
+
+
+def write_fontconfig(res_mods_dir, font):
     gui_dir = os.path.join(res_mods_dir, "gui")
-    os.makedirs(gui_dir, exist_ok=True)
     for name, content in (("fontconfig_gameface.xml", fontconfig_gameface(font)),
                           ("fontconfig_scaleform.xml", fontconfig_scaleform(font))):
         with open(os.path.join(gui_dir, name), "w", encoding="utf-8", newline="\n") as f:
@@ -244,8 +353,11 @@ def main():
         print(f"wrote {out_dir}\\global.mo")
 
     font_key = pick_font(res_mods_dir, args.font)
-    write_fontconfig(res_mods_dir, font_key)
-    print(f"wrote {res_mods_dir}\\gui\\fontconfig_*.xml using {font_key}")
+    print(f"building font from {font_key}")
+    os.makedirs(os.path.join(res_mods_dir, "gui", "fonts"), exist_ok=True)
+    font = build_fonts(args.wows_dir, build_dir, res_mods_dir, font_key)
+    write_fontconfig(res_mods_dir, font)
+    print(f"wrote {res_mods_dir}\\gui\\fontconfig_*.xml")
 
 
 if __name__ == "__main__":
