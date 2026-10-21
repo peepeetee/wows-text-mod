@@ -180,7 +180,8 @@ def build_catalog(build_dir):
 
 
 def replace_names(catalog):
-    replacements = [(re.compile(re.escape(name), re.IGNORECASE), native)
+    # Whole words only, so e.g. "harbinger" and "Mayan" are left alone.
+    replacements = [(re.compile(rf"\b{re.escape(name)}\b", re.IGNORECASE), native)
                     for name, native in NAME_REPLACEMENTS]
     for entry in catalog:
         for pattern, native in replacements:
