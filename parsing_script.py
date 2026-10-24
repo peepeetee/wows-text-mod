@@ -28,7 +28,7 @@ from fontTools.ttLib import TTFont
 DEFAULT_WOWS_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\World of Warships"
 
 # Languages whose global.mo gets replaced by the modded one.
-TARGET_LANGUAGES = ("en", "ja")
+TARGET_LANGUAGES = ("en",)
 
 # msgid pattern -> language the translation is taken from.
 NATION_SOURCES = (

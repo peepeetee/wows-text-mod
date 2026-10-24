@@ -19,7 +19,7 @@ python parsing_script.py
 
 The script writes into the `res_mods` folder of the newest game build under `bin`:
 
-- `texts/en/LC_MESSAGES/global.mo` and `texts/ja/LC_MESSAGES/global.mo` with the renamed ships
+- `texts/en/LC_MESSAGES/global.mo` with the renamed ships
 - `gui/fonts/textmod-regular.ttf` and `gui/fonts/textmod-bold.ttf`: a CJK font with every glyph it lacks copied in from the stock Warhelios font (Polish letters, the ★ supership icon, the game's private-use icons)
 - `gui/fontconfig_gameface.xml` and `gui/fontconfig_scaleform.xml`, which switch every realm to that font (the stock EU/NA font, Warhelios, has no CJK glyphs)
 
